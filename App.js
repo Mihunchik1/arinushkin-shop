@@ -9,14 +9,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-// Создаем контекст для корзины
 const CartContext = createContext();
 
-// Провайдер корзины
 function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
 
-  // Добавление товара в корзину
   const addToCart = (product) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === product.id);
@@ -32,7 +29,6 @@ function CartProvider({ children }) {
     });
   };
 
-  // Удаление товара из корзины
   const removeFromCart = (productId) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === productId);
@@ -48,17 +44,14 @@ function CartProvider({ children }) {
     });
   };
 
-  // Удаление всего товара из корзины
   const removeItemCompletely = (productId) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
   };
 
-  // Очистка всей корзины
   const clearCart = () => {
     setCartItems([]);
   };
 
-  // Общая стоимость
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => {
       const price = parseInt(item.price.replace('₽', '').replace(/\s/g, ''));
@@ -66,7 +59,6 @@ function CartProvider({ children }) {
     }, 0);
   };
 
-  // Общее количество товаров
   const getTotalItems = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
@@ -86,7 +78,6 @@ function CartProvider({ children }) {
   );
 }
 
-// Хук для использования корзины
 const useCart = () => useContext(CartContext);
 
 const categories = [
@@ -126,12 +117,32 @@ function Header() {
 }
 
 function HomeScreen() {
+  const [newYearModalVisible, setNewYearModalVisible] = useState(false);
+
   return(
-    <View style={styles.screen}>
-      <Text>Главная</Text>
+    <View style={styles.screen}>      
+      <View style={styles.infoCard}>
+        <Text style={styles.infoTitle}>Добро пожаловать в магазин Arinushkin!</Text>
+        <Text style={styles.infoText}>
+          У нас вы найдете качественную мебель по лучшим ценам. 
+          Выбирайте из сотен товаров с доставкой по всему городу.
+        </Text>
+      </View>
+
+      <View style={styles.quickLinks}>
+        <Text style={styles.quickLinksTitle}>Популярные категории:</Text>
+        <View style={styles.quickLinksContainer}>
+          {categories.slice(0, 2).map((category) => (
+            <View key={category.id} style={styles.quickLinkItem}>
+              {category.icon()}
+              <Text style={styles.quickLinkText}>{category.name}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
     </View>
   )
-};
+}
 
 function CatalogScreen({ navigation }) {
   const [searchText, setSearchText] = useState('');
@@ -308,7 +319,7 @@ function CategoryScreen({ route, navigation }) {
                     <Text style={styles.productParam}>Цвет: {selectedProduct.color}</Text>
                   )}
                   {selectedProduct.size && (
-                    <Text style={styles.productParam}>Размер: {selectedProduct.size}</Text>
+                    <Text style={styles.productParam}>Размер(Длина, Ширина, Высота): {selectedProduct.size}</Text>
                   )}
                   {selectedProduct.material && (
                     <Text style={styles.productParam}>Материал: {selectedProduct.material}</Text>
@@ -354,8 +365,8 @@ function CartModal({ visible, onClose }) {
 
   const handleOrder = () => {
     console.log('Попытка оформить заказ');
-    onClose(); // Закрываем корзину
-    setOrderErrorModalVisible(true); // Показываем ошибку интернета
+    onClose(); 
+    setOrderErrorModalVisible(true); 
   };
 
   return (
@@ -455,15 +466,13 @@ function CartModal({ visible, onClose }) {
           </View>
         </View>
       </Modal>
-
-      {/* Модальное окно ошибки интернета при заказе */}
-      <Modal
-        visible={orderErrorModalVisible}
-        animationType="fade"
-        transparent={true}
-        statusBarTranslucent={true}
-        onRequestClose={() => setOrderErrorModalVisible(false)}
-      >
+        <Modal
+          visible={orderErrorModalVisible}
+          animationType="fade"
+          transparent={true}
+          statusBarTranslucent={true}
+          onRequestClose={() => setOrderErrorModalVisible(false)}
+        >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>
@@ -1099,5 +1108,201 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#666',
     marginTop: 20,
+  },
+  screenTitle: {
+  fontSize: 28,
+  fontWeight: 'bold',
+  color: '#284B63',
+  textAlign: 'center',
+  marginBottom: 25,
+  marginTop: 10,
+  },
+  promoCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 25,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    borderWidth: 2,
+    borderColor: '#FFD700',
+  },
+  promoCardPressed: {
+    opacity: 0.9,
+  },
+  promoContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  promoTextContainer: {
+    flex: 1,
+    marginLeft: 15,
+    marginRight: 10,
+  },
+  promoTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#284B63',
+    marginBottom: 5,
+  },
+  promoSubtitle: {
+    fontSize: 16,
+    color: '#FF6B6B',
+    fontWeight: '600',
+    marginBottom: 3,
+  },
+  promoPeriod: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+  },
+  infoCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 25,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  infoTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#353535',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  infoText: {
+    fontSize: 15,
+    color: '#666',
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+  quickLinks: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  quickLinksTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#353535',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  quickLinksContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  quickLinkItem: {
+    alignItems: 'center',
+    padding: 10,
+  },
+  quickLinkText: {
+    fontSize: 14,
+    color: '#284B63',
+    marginTop: 8,
+    fontWeight: '500',
+  },
+  promoModalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  promoModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 25,
+    width: '90%',
+    maxHeight: '80%',
+  },
+  promoModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  promoModalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#284B63',
+  },
+  promoModalIcon: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  promoModalPeriod: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FF6B6B',
+    textAlign: 'center',
+    marginBottom: 20,
+    backgroundColor: '#FFF5F5',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    alignSelf: 'center',
+  },
+  promoDetails: {
+    marginBottom: 20,
+  },
+  promoDetailItem: {
+    fontSize: 16,
+    color: '#353535',
+    marginBottom: 12,
+    paddingLeft: 10,
+    borderLeftWidth: 3,
+    borderLeftColor: '#FFD700',
+  },
+  promoModalNote: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginBottom: 25,
+    padding: 12,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+  },
+  promoModalButton: {
+    backgroundColor: '#3C6E71',
+    borderRadius: 10,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  promoModalButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '500',
   },
 });
